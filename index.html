@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8'>
+  <meta name="robots" content="noindex">
+  <title>BubbleView Task</title>
+  <link rel="stylesheet" href="lib/bubble-view.css">
+  </link>
+
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src='lib/jspsych-6.1.0/jspsych.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-fullscreen.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-instructions.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-survey-text.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-html-button-response.js'></script>
+  <script src="lib/jspsych-single-image.js"></script>
+  <script src="lib/jspsych-bubble-view.js"></script>
+  <script src="lib/bubble-view_main.js"></script>
+</head>
+
+<body>
+  <!-- Step 2: Add `display_stage` CSS, DIV, and extra scripts for Qualtrics -->
+  <!-- COPY PASTE TO QUALTRICS FROM HERE -->
+  <link href="https://kywch.github.io/BubbleView_jsPsych/lib/bubble-view.css" rel="stylesheet" type="text/css">
+  </link>
+  <div>
+    <span style="font-size: 24px;">
+      <br><br>
+      If you are seeing this message for <span style="color: rgb(255, 0, 0);">
+        <b>more than 5 minutes</b></span>,<br>
+      please screen-capture this screen and send the image to us.
+      <br><br>
+      <span style="font-size: 28px;">We are very sorry for the inconvenience.</span>
+    </span>
+  </div>
+
+  <style>
+    #display_stage_background {
+      width: 100vw;
+      background-color: white;
+      z-index: -1;
+    }
+
+    #display_stage {
+      position: fixed;
+      left: 1vw;
+      top: 1vh;
+      height: 98vh;
+      width: 98vw;
+      background-color: white;
+      box-shadow: 1px 1px 1px #999;
+      border-radius: 15px;
+      z-index: 0;
+      overflow-y: hidden;
+      overflow-x: hidden;
+    }
+  </style>
+  <!-- COPY PASTE TO QUALTRICS UP TO HERE -->
+
+  <div id='display_stage_background'></div>
+  <div id='display_stage'></div>
+
+</body>
+
+<script>
+  sbjId = "test";
+  data_dir = "data01";
+
+  /* ************************************ */
+  /* Instruction-related scripts */
+  /* ************************************ */
+  var instr_url = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/instructions/';
+  var instr_imglist = [];
+  for (var ii = 0; ii < 5; ii++) {
+    instr_imglist.push(instr_url + 'Slide' + (ii + 1).toString() + '.PNG');
+  }
+
+  function generate_instruction_page(imglist) {
+    var instructions_page = {
+      type: 'instructions',
+      pages: function () {
+        var pages = [];
+        for (var ii = 0; ii < imglist.length; ii++) {
+          pages.push('<img class="resize" src="' + imglist[ii] + '">');
+        }
+        pages.push(
+          '<div class = centerbox><p class = block-text>You can read the instruction again by clicking the <strong>Previous</strong> button.</p>' +
+          '<p class = block-text>Clicking the <strong>Next</strong> button will finish the instruction.</p></div>'
+        );
+        return pages;
+      },
+      data: {
+        exp_stage: 'task_instructions_page'
+      },
+      allow_keys: false,
+      show_clickable_nav: true,
+      show_page_number: true
+    };
+    return instructions_page;
+  }
+
+  // stimulus definition
+  // for the images that have 'a' in the fourth place, we will ask Ps to describe those
+  var pracImg_src = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/images_prac/';
+  var pracImg_ext = 'png';
+  var pracImg_set = ["bxba7", "bxbf13", "bxbv1", "wxwa9", "wxwf3", "wxwv3"];
+  var pracImg_attn = ["wxwa9"];
+  var mainImg_src = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/images_main/';
+  var mainImg_ext = 'png';
+  var mainImg_set = [
+    "bxba2", "bxba3", "bxba4", "bxba5", "bxba6", "bxba8", "bxba13", "bxba15",
+    "bxbf2", "bxbf3", "bxbf5", "bxbf6", "bxbf7", "bxbf11", "bxbf12", "bxbf14",
+    "bxbv2", "bxbv4", "bxbv5", "bxbv6", "bxbv8", "bxbv9", "bxbv10", "bxbv11",
+    "wxwa1", "wxwa2", "wxwa5", "wxwa10", "wxwa11", "wxwa12", "wxwa13", "wxwa15",
+    "wxwf4", "wxwf5", "wxwf6", "wxwf7", "wxwf8", "wxwf9", "wxwf11", "wxwf12",
+    "wxwv6", "wxwv7", "wxwv8", "wxwv10", "wxwv11", "wxwv12", "wxwv13", "wxwv15",
+    "pxba1", "pxba2", "pxba8", "pxba9", "pxba12", "pxba13", "pxba14", "pxba15",
+    "pxbf3", "pxbf4", "pxbf7", "pxbf10", "pxbf11", "pxbf12", "pxbf14", "pxbf15",
+    "pxbv2", "pxbv3", "pxbv4", "pxbv6", "pxbv7", "pxbv9", "pxbv10", "pxbv13"
+  ];
+  var mainImg_attn = [
+    "bxba4", "bxba5", "bxba6", "bxba8", "wxwa2", "wxwa12", "wxwa13", "wxwa15",
+    "pxba1", "pxba2", "pxba9", "pxba12"
+  ];
+
+  var jspsych_session = [];
+
+  // use the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+  });
+
+  jspsych_session.push(generate_instruction_page(instr_imglist));
+
+  jspsych_session.push({
+    timeline: generate_practice_block(pracImg_src, shuffle(pracImg_set), pracImg_ext, pracImg_attn)
+  });
+
+  jspsych_session.push({
+    timeline: generate_main_block(mainImg_src, shuffle(mainImg_set), mainImg_ext, mainImg_attn)
+  });
+
+  // exit the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+  });
+
+  jsPsych.init({
+    timeline: jspsych_session,
+    preload_images: instr_imglist,
+
+    display_element: 'display_stage',
+
+    on_data_update: function (data) { // each time the data is updated:
+      // write the current window resolution to the data
+      data.win_res = window.innerWidth + 'x' + window.innerHeight;
+      data.fullscr = fullscr_ON;
+    },
+
+    on_interaction_data_update: function (data) {
+      //interaction data logs if participants leaves the browser window or exits full screen mode
+      interaction = data.event;
+      if (interaction.includes("fullscreen")) {
+        // some unhandy coding to circumvent a bug in jspsych that logs fullscreenexit when actually entering
+        if (fullscr_ON == 'no') {
+          fullscr_ON = 'yes';
+          return fullscr_ON;
+        } else if (fullscr_ON == 'yes') {
+          fullscr_ON = 'no';
+          return fullscr_ON;
+        }
+      } else if (interaction == 'blur' || interaction == 'focus') {
+        focus = interaction;
+        return focus;
+      }
+    },
+
+    exclusions: { // browser window needs to have these dimensions, if not, participants get the chance to maximize their window, if they don't support this resolution when maximized they can't particiate.
+      min_width: 1000,
+      min_height: 700
+    },
+
+    on_finish: function () {
+      save_data();
+      if (flag_debug) {
+        console.log(jsPsych.data.get().json());
+      }
+    }
+  });
+</script>
+
+</body>
+
+</html>
