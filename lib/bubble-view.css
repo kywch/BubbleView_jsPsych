@@ -5,7 +5,7 @@
  * experiments look polished without any additional styles.
  */
 
- @import url("https://cdn.jsdelivr.net/gh/kywch/BubbleView_jsPsych/lib/jspsych.css");
+ @import url("https://kywch.github.io/BubbleView_jsPsych/lib/jspsych-6.1.0/css/jspsych.css");
 
 
 /* basic text properties */
