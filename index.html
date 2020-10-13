@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="lib/bubble-view.css">
   </link>
 
+  <!-- Step 1. Define and load required resources -->
   <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
   <script src='lib/jspsych-6.1.0/jspsych.js'></script>
   <script src='lib/jspsych-6.1.0/plugins/jspsych-fullscreen.js'></script>
@@ -64,13 +65,9 @@
 </body>
 
 <script>
-  sbjId = "test";
-  data_dir = "data01";
-
-  /* ************************************ */
-  /* Instruction-related scripts */
-  /* ************************************ */
-  var instr_url = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/instructions/';
+  /* Step 3: Define image locations and a helper functions generating instructions and trial sequence */
+  // instruction image location
+  var instr_url = 'https://kywch.github.io/BubbleView_jsPsych/instructions/';
   var instr_imglist = [];
   for (var ii = 0; ii < 5; ii++) {
     instr_imglist.push(instr_url + 'Slide' + (ii + 1).toString() + '.PNG');
@@ -102,12 +99,13 @@
 
   // stimulus definition
   // for the images that have 'a' in the fourth place, we will ask Ps to describe those
-  var pracImg_src = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/images_prac/';
-  var pracImg_ext = 'png';
+  var img_ext = 'png';
+  var pracImg_src = 'https://kywch.github.io/BubbleView_jsPsych/images_prac/';
+  var pracBlur_src = 'https://kywch.github.io/BubbleView_jsPsych/images_prac/blur/';
   var pracImg_set = ["bxba7", "bxbf13", "bxbv1", "wxwa9", "wxwf3", "wxwv3"];
   var pracImg_attn = ["wxwa9"];
-  var mainImg_src = 'https://raw.githubusercontent.com/kywch/BubbleView_jsPsych/master/images_main/';
-  var mainImg_ext = 'png';
+  var mainImg_src = 'https://kywch.github.io/BubbleView_jsPsych/images_main/';
+  var mainBlur_src = 'https://kywch.github.io/BubbleView_jsPsych/images_main/radius_30/';
   var mainImg_set = [
     "bxba2", "bxba3", "bxba4", "bxba5", "bxba6", "bxba8", "bxba13", "bxba15",
     "bxbf2", "bxbf3", "bxbf5", "bxbf6", "bxbf7", "bxbf11", "bxbf12", "bxbf14",
@@ -124,6 +122,9 @@
     "pxba1", "pxba2", "pxba9", "pxba12"
   ];
 
+
+  /* Step 4: Define the experiment flow */
+  // NOTE that the functions used below are defined in `bubble-view_main.js` for readability
   var jspsych_session = [];
 
   // use the full screen
@@ -135,11 +136,13 @@
   jspsych_session.push(generate_instruction_page(instr_imglist));
 
   jspsych_session.push({
-    timeline: generate_practice_block(pracImg_src, shuffle(pracImg_set), pracImg_ext, pracImg_attn)
+    timeline: generate_practice_block(
+      pracImg_src, pracBlur_src, jsPsych.randomization.shuffle([...pracImg_set]), img_ext, pracImg_attn)
   });
 
   jspsych_session.push({
-    timeline: generate_main_block(mainImg_src, shuffle(mainImg_set), mainImg_ext, mainImg_attn)
+    timeline: generate_main_block(
+      mainImg_src, mainBlur_src, jsPsych.randomization.shuffle([...mainImg_set]), img_ext, mainImg_attn)
   });
 
   // exit the full screen
@@ -148,35 +151,12 @@
     fullscreen_mode: false
   });
 
+
+  /* Step 5: Run the experiment. */
   jsPsych.init({
     timeline: jspsych_session,
     preload_images: instr_imglist,
-
     display_element: 'display_stage',
-
-    on_data_update: function (data) { // each time the data is updated:
-      // write the current window resolution to the data
-      data.win_res = window.innerWidth + 'x' + window.innerHeight;
-      data.fullscr = fullscr_ON;
-    },
-
-    on_interaction_data_update: function (data) {
-      //interaction data logs if participants leaves the browser window or exits full screen mode
-      interaction = data.event;
-      if (interaction.includes("fullscreen")) {
-        // some unhandy coding to circumvent a bug in jspsych that logs fullscreenexit when actually entering
-        if (fullscr_ON == 'no') {
-          fullscr_ON = 'yes';
-          return fullscr_ON;
-        } else if (fullscr_ON == 'yes') {
-          fullscr_ON = 'no';
-          return fullscr_ON;
-        }
-      } else if (interaction == 'blur' || interaction == 'focus') {
-        focus = interaction;
-        return focus;
-      }
-    },
 
     exclusions: { // browser window needs to have these dimensions, if not, participants get the chance to maximize their window, if they don't support this resolution when maximized they can't particiate.
       min_width: 1000,
@@ -184,14 +164,19 @@
     },
 
     on_finish: function () {
-      save_data();
-      if (flag_debug) {
-        console.log(jsPsych.data.get().json());
-      }
+      // csv-like string: delimiter - space (' '), newline - semicolon (';')
+      // results_string = 'trial image_name event_type time_from_onset x_loc y_loc;';
+      console.log(result_string);
+
+      // Also display in the result page as well
+      var display_element = jsPsych.getDisplayElement();
+      display_element.innerHTML =
+        "Results will be stored as a single string variable with a csv-like formatting<br>" +
+        "so that it can easily saved into Qualtrics Embedded Data.<p>" +
+        "delimiter - space (' '), newline - semicolon (';')<p>" +
+        "<b>Result string ==></b> " + result_string;
     }
   });
 </script>
-
-</body>
 
 </html>
