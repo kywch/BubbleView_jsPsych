@@ -103,7 +103,8 @@
   var pracImg_src = 'https://kywch.github.io/BubbleView_jsPsych/images_prac/';
   var pracBlur_src = 'https://kywch.github.io/BubbleView_jsPsych/images_prac/blur/';
   var pracImg_set = ["bxba7", "bxbf13", "bxbv1", "wxwa9", "wxwf3", "wxwv3"];
-  var pracImg_attn = ["wxwa9"];
+  var pracImg_attn = ["wxwa9"]; // images to describe
+
   var mainImg_src = 'https://kywch.github.io/BubbleView_jsPsych/images_main/';
   var mainBlur_src = 'https://kywch.github.io/BubbleView_jsPsych/images_main/radius_30/';
   var mainImg_set = [
@@ -117,11 +118,14 @@
     "pxbf3", "pxbf4", "pxbf7", "pxbf10", "pxbf11", "pxbf12", "pxbf14", "pxbf15",
     "pxbv2", "pxbv3", "pxbv4", "pxbv6", "pxbv7", "pxbv9", "pxbv10", "pxbv13"
   ];
-  var mainImg_attn = [
+  var mainImg_attn = [ // images to describe
     "bxba4", "bxba5", "bxba6", "bxba8", "wxwa2", "wxwa12", "wxwa13", "wxwa15",
     "pxba1", "pxba2", "pxba9", "pxba12"
   ];
 
+  // rating-related questions and items
+  var rating_prompt = 'Please rate how violent the picture was (1:none - 7:extremely).';
+  var rating_buttons = ['1', '2', '3', '4', '5', '6', '7'];
 
   /* Step 4: Define the experiment flow */
   // NOTE that the functions used below are defined in `bubble-view_main.js` for readability
@@ -137,12 +141,14 @@
 
   jspsych_session.push({
     timeline: generate_practice_block(
-      pracImg_src, pracBlur_src, jsPsych.randomization.shuffle([...pracImg_set]), img_ext, pracImg_attn)
+      pracImg_src, pracBlur_src, jsPsych.randomization.shuffle([...pracImg_set]),
+      img_ext, pracImg_attn, rating_prompt, rating_buttons)
   });
 
   jspsych_session.push({
     timeline: generate_main_block(
-      mainImg_src, mainBlur_src, jsPsych.randomization.shuffle([...mainImg_set]), img_ext, mainImg_attn)
+      mainImg_src, mainBlur_src, jsPsych.randomization.shuffle([...mainImg_set]),
+      img_ext, mainImg_attn, rating_prompt, rating_buttons)
   });
 
   // exit the full screen
